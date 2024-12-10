@@ -54,10 +54,11 @@ export class UserService {
       if (user.updated_token !== updateUserDTO.updated_token) {
         throw new HttpException('User đang được cập nhật bởi ai đó!', HttpStatus.CONFLICT)
       }
+      const updated_token = generateUpdateToken();
 
       const updateUserData = {
         ...updateUserDTO,
-        updated_token: generateUpdateToken(),
+        updated_token: updated_token,
         updated_date: Date.now(),
       }
 
@@ -67,7 +68,7 @@ export class UserService {
         const updateResult = await user.updateOne(updateUserData)
 
         if (updateResult.modifiedCount > 0) {
-          return { message: 'Cập nhật thành công' }
+          return { message: 'Cập nhật thành công', updated_token: updated_token}
         } else {
           throw new HttpException('Cập nhật thất bại', HttpStatus.NOT_IMPLEMENTED)
         }
@@ -93,16 +94,18 @@ export class UserService {
         throw new HttpException('User đang được cập nhật bởi ai đó!', HttpStatus.CONFLICT)
       }
 
+      const updated_token = generateUpdateToken();
+
       const updateUserData = {
         ...lockUserDTO,
-        updated_token: generateUpdateToken(),
+        updated_token: updated_token,
         updated_date: Date.now(),
       }
 
       const updateResult = await user.updateOne(updateUserData)
 
       if (updateResult.modifiedCount > 0) {
-        return { message: 'Cập nhật thành công' }
+        return { message: 'Cập nhật thành công', updated_token: updated_token }
       } else {
         throw new HttpException('Cập nhật thất bại', HttpStatus.NOT_IMPLEMENTED)
       }
@@ -132,9 +135,11 @@ export class UserService {
 
       newExpireDate.setDate(newExpireDate.getDate() + extendDateDTO.expire_date);
 
+      const updated_token = generateUpdateToken();
+
       const updateUserData = {
         ...extendDateDTO,
-        updated_token: generateUpdateToken(),
+        updated_token: updated_token,
         expire_date: newExpireDate,
         updated_date: Date.now(),
       }
@@ -142,7 +147,7 @@ export class UserService {
       const updateResult = await user.updateOne(updateUserData)
 
       if (updateResult.modifiedCount > 0) {
-        return { message: 'Gia hạn thành công' }
+        return { message: 'Gia hạn thành công', updated_token: updated_token }
       } else {
         throw new HttpException('Gia hạn thất bại', HttpStatus.NOT_IMPLEMENTED)
       }
@@ -172,9 +177,11 @@ export class UserService {
         throw new HttpException('Mã mời không hợp lệ!', HttpStatus.CONFLICT)
       }
 
+      const updated_token = generateUpdateToken();
+
       const updateUserData = {
         ...fillInviteCodeDTO,
-        updated_token: generateUpdateToken(),
+        updated_token: updated_token,
         updated_date: Date.now(),
       }
 
@@ -183,7 +190,7 @@ export class UserService {
       } else {
         const updateResult = await user.updateOne(updateUserData)
         if (updateResult.modifiedCount > 0) {
-          return { message: 'Nhập mã mời thành công' }
+          return { message: 'Nhập mã mời thành công', updated_token: updated_token}
         } else {
           throw new HttpException('Nhập mã mời thất bại', HttpStatus.NOT_IMPLEMENTED)
         }
