@@ -13,4 +13,12 @@ export class LoginDTO {
 export class LoginGGFBDTO {
   @IsNotEmpty()
   user_id: string
+
+  @IsNotEmpty()
+  full_name: string
+
+  @IsEmail()
+  @IsNotEmpty()
+  @Transform((email) => email.value.toLowerCase())
+  email: string
 }

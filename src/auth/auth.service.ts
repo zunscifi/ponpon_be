@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus} from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common'
 
 import {
   LoginDTO,
@@ -13,6 +13,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { User } from 'src/types/user'
 import { TokenBlacklist } from 'src/types/token-blacklist'
+import { UserRole } from 'src/enums/role.enum'
 
 type PayloadType = {
   user_id: string
@@ -60,27 +61,66 @@ export class AuthService {
   }
 
   async loginGGFB(loginGGFBDTO: LoginGGFBDTO) {
-    const user = await this.userModel.findOne({
-      user_id: loginGGFBDTO.user_id,
-    })
-    if (!user) {
-      throw new HttpException('Đăng nhập thất bại !', HttpStatus.UNAUTHORIZED)
-    }
-    if (user.is_locked) {
-      throw new HttpException('Tài khoản hiện tại đang bị vô hiệu hóa !', HttpStatus.FORBIDDEN)
-    }
-    const payload = {
-      user_id: user.user_id,
-      role: user.role,
-    }
-    const token = await this.generateToken(payload)
-    return {
-      user: plainToInstance(UserDTO, user, {
-        excludeExtraneousValues: true,
-      }),
-      token: token,
+    try {
+      const user = await this.userModel.findOne({
+        user_id: loginGGFBDTO.user_id,
+      })
+
+      const payload = {
+        user_id: loginGGFBDTO.user_id,
+        role: UserRole.USER,
+      }
+
+      if (!user) {
+        try {
+          const user = new this.userModel({
+            user_id: loginGGFBDTO.user_id,
+            full_name: loginGGFBDTO.full_name,
+            card_id: null,
+            email: loginGGFBDTO.email,
+            password: null,
+            phone_number: null,
+            address: null,
+            role: UserRole.USER,
+            is_fill_info: false
+          })
+
+          console.log(payload)
+
+
+          await user.save()
+          const token = await this.generateToken(payload)
+
+
+          return {
+            user: plainToInstance(UserDTO, user, {
+              excludeExtraneousValues: true,
+            }),
+            token: token,
+          }
+        } catch (err) {
+          console.log(err)
+
+          throw new InternalServerErrorException()
+        }
+      }
+
+      if (user.is_locked) {
+        throw new HttpException('Tài khoản hiện tại đang bị vô hiệu hóa !', HttpStatus.FORBIDDEN)
+      }
+
+      const token = await this.generateToken(payload)
+      return {
+        user: plainToInstance(UserDTO, user, {
+          excludeExtraneousValues: true,
+        }),
+        token: token,
+      }
+    } catch (error) {
+      throw error
     }
   }
+
 
   async logout(userId: string, token: string) {
     try {

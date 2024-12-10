@@ -14,7 +14,6 @@ export const userSchema = new mongoose.Schema({
   },
   card_id: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
@@ -26,12 +25,9 @@ export const userSchema = new mongoose.Schema({
   },
   phone_number: {
     type: String,
-    required: true,
-    unique: true,
   },
   address: {
     type: String,
-    required: true,
   },
   role: {
     type: String,
