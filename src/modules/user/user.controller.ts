@@ -32,8 +32,6 @@ export class UserController {
   }
 
   @Post('getUser')
-  @UseGuards(AuthGuard)
-  @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
   getUser(@Body() body: { user_id: string }, @Req() req: any) {
     return this.userService.getUser(body.user_id ? body.user_id : req.user_data.user_id)
   }
