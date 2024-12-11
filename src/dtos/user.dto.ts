@@ -9,7 +9,7 @@ export class UserDTO {
   @Expose()
   full_name: string;
   @Expose()
-  cardId: string;
+  card_id: string;
   @Expose()
   email: string;
   @Expose()
