@@ -34,6 +34,8 @@ export class AuthService {
     const user = await this.userModel.findOne({
       email: loginDTO.email,
     })
+
+    console.log(user)
     if (!user) {
       throw new HttpException('Email hoặc mật khẩu không đúng !', HttpStatus.UNAUTHORIZED)
     }

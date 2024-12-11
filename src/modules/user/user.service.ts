@@ -54,10 +54,18 @@ export class UserService {
       if (user.updated_token !== updateUserDTO.updated_token) {
         throw new HttpException('User đang được cập nhật bởi ai đó!', HttpStatus.CONFLICT)
       }
+
+      let hashPass = null;
+
+      if(updateUserDTO?.password) {
+        hashPass = await hashPassword(updateUserDTO.password)
+
+      }
       const updated_token = generateUpdateToken();
 
       const updateUserData = {
         ...updateUserDTO,
+        password: hashPass ? hashPass : user.password,
         updated_token: updated_token,
         updated_date: Date.now(),
       }
