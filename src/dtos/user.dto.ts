@@ -74,7 +74,6 @@ export class UpdateUserDTO {
   @Transform((value) => new BooleanPipe().transform(value.value))
   is_fill_info: boolean;
 
-  @IsNotEmpty()
   updated_token: string;
 }
 
