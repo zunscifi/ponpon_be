@@ -40,11 +40,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   async update(@Body() updateUserDTO: UpdateUserDTO, @Req() req: any) {
+    console.log("fdfsdfsdfsdfsdfsdfsdfsdfsdfsdfsbbbbb")
+
     try {
       return this.userService.update(updateUserDTO)
     } catch (error) {
       console.log(error)
-      throw new HttpException('Cập nhật thông tin thất bại !', HttpStatus.BAD_REQUEST)
+      throw error
     }
   }
 

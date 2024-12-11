@@ -66,6 +66,7 @@ export class UserService {
       const updateUserData = {
         ...updateUserDTO,
         password: hashPass ? hashPass : user.password,
+        is_fill_info: true,
         updated_token: updated_token,
         updated_date: Date.now(),
       }
@@ -82,6 +83,7 @@ export class UserService {
         }
       }
     } catch (err) {
+      console.log(err)
       if (err instanceof HttpException) {
         throw err
       } else {

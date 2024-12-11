@@ -71,10 +71,7 @@ export class UpdateUserDTO {
   @IsOptional()
   expire_date: string;
 
-  @IsBoolean()
-  @Transform((value) => new BooleanPipe().transform(value.value))
-  is_fill_info: boolean;
-
+  @IsOptional()
   updated_token: string;
 }
 
