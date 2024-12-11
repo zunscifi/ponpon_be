@@ -49,6 +49,7 @@ export class UpdateUserDTO {
   @Transform((email) => email.value.toLowerCase())
   email: string
 
+  @IsOptional()
   @Length(8)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, {
     message: 'Mật khẩu phải chứa ít nhất một ký tự in hoa, một ký tự thường, một chữ số và một ký tự đặc biệt!',
