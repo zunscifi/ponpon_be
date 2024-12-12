@@ -87,13 +87,9 @@ export class AuthService {
             is_fill_info: false
           })
 
-          console.log(payload)
-
-
           await user.save()
           const token = await this.generateToken(payload)
-
-
+          
           return {
             user: plainToInstance(UserDTO, user, {
               excludeExtraneousValues: true,
