@@ -68,11 +68,6 @@ export class AuthService {
         user_id: loginGGFBDTO.user_id,
       })
 
-      const payload = {
-        user_id: loginGGFBDTO.user_id,
-        role: UserRole.USER,
-      }
-
       if (!user) {
         try {
           const user = new this.userModel({
@@ -87,9 +82,14 @@ export class AuthService {
             is_fill_info: false
           })
 
+          const payload = {
+            user_id: loginGGFBDTO.user_id,
+            role: UserRole.USER,
+          }
+
           await user.save()
           const token = await this.generateToken(payload)
-          
+
           return {
             user: plainToInstance(UserDTO, user, {
               excludeExtraneousValues: true,
@@ -105,6 +105,11 @@ export class AuthService {
 
       if (user.is_locked) {
         throw new HttpException('Tài khoản hiện tại đang bị vô hiệu hóa !', HttpStatus.FORBIDDEN)
+      }
+
+      const payload = {
+        user_id: user.user_id,
+        role: user.role,
       }
 
       const token = await this.generateToken(payload)

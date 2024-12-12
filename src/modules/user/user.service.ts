@@ -36,7 +36,7 @@ export class UserService {
       })
     } catch (err) {
       if (err.code === 11000) {
-        throw new ConflictException('Email đã tồn tại !')
+        throw new ConflictException('Tài khoản đã tồn tại !')
       } else {
         throw new InternalServerErrorException()
       }
