@@ -160,7 +160,4 @@ export class ExtendDateDTO {
 
   @IsNotEmpty()
   expire_date: number;
-
-  @IsOptional()
-  updated_token: string;
 }

@@ -29,7 +29,7 @@ export const htmlContentPaymentSuccess = `
         .textCheckDone {
             font-family: 'Open Sans', sans-serif;
             font-size: 24px;
-            color: green;
+            color: #FC9600;
             font-weight: bold;
         }
 
@@ -52,10 +52,10 @@ export const htmlContentPaymentSuccess = `
             width: 60%;
             padding: 10px;
             font-size: 16px;
-            background-color: #2A4D50;
+            background-color: #FC9600;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             cursor: pointer;
         }
     </style>
@@ -63,20 +63,17 @@ export const htmlContentPaymentSuccess = `
 <body>
     <div class="container">
         <div class="checkDone">
-            <p class="textCheckDone">Đặt hàng thành công !</p>
-            <ion-icon name="checkmark-done-circle-outline" style="font-size: 250px; color: green;"></ion-icon>
-            <p class="textThanks">
-                Cảm ơn bạn đã đặt hàng, đơn hàng của bạn sẽ nhanh chóng được xác nhận!
-            </p>
+            <p class="textCheckDone">Gia hạn thành công !</p>
+            <ion-icon name="checkmark-circle-outline" style="font-size: 250px; color: green;"></ion-icon>
         </div>
         <div class="buttonWrapper">
-            <button onclick="continueShopping()">Tiếp tục mua sắm</button>
+            <button onclick="backToHome()">Về trang chủ</button>
         </div>
     </div>
 
     <script>
-        function continueShopping() {
-            window.ReactNativeWebView.postMessage("continueShopping");
+        function backToHome() {
+            window.ReactNativeWebView.postMessage("backToHome");
         }
     </script>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -91,82 +88,72 @@ export const htmlContentPaymentFail = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Failed</title>
+    <title>Order Confirmation</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: 'Open Sans', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f8d7da;
         }
 
         .container {
-            text-align: center;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
         }
 
-        .errorIcon {
-            font-size: 100px;
-            color: #dc3545;
-            margin-bottom: 20px;
+        .faild {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 32px;
+            flex: 1;
         }
 
-        .textFailed {
+        .textFaild {
+            font-family: 'Open Sans', sans-serif;
             font-size: 24px;
-            color: #dc3545;
+            color: #FC9600;
             font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .textDescription {
-            font-size: 18px;
-            color: #6c757d;
-            margin-bottom: 20px;
         }
 
         .buttonWrapper {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex: 1;
         }
 
         button {
-            padding: 10px 20px;
+            width: 60%;
+            padding: 10px;
             font-size: 16px;
-            background-color: #dc3545;
+            background-color: #FC9600;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #c82333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="errorIcon">❌</div>
-        <p class="textFailed">Thanh toán thất bại</p>
-        <p class="textDescription">Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.</p>
+        <div class="faild">
+            <p class="textFaild">Gia hạn thất bại !</p>
+            <ion-icon name="close-outline" style="font-size: 250px; color: red;"></ion-icon>
+        </div>
         <div class="buttonWrapper">
-            <button onclick="retryPayment()">Tiếp tục mua sắm</button>
+            <button onclick="backToHome()">Về trang chủ</button>
         </div>
     </div>
 
     <script>
-        function retryPayment() {
-            window.ReactNativeWebView.postMessage("retryPayment");
+        function backToHome() {
+            window.ReactNativeWebView.postMessage("backToHome");
         }
     </script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
 </html>
 `;

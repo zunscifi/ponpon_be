@@ -9,6 +9,7 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { NotificationModule } from './modules/notification/notification.module'
 import { PlanModule } from './modules/plan/plan.module'
+import { PaymentModule } from './modules/payment/payment.module'
 
 
 @Module({
@@ -21,7 +22,8 @@ import { PlanModule } from './modules/plan/plan.module'
     UserModule,
     AuthModule,
     NotificationModule,
-    PlanModule
+    PlanModule,
+    PaymentModule
 
   ],
   controllers: [AppController],

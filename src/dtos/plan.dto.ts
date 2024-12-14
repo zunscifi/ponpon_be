@@ -3,7 +3,11 @@ import { Expose } from 'class-transformer';
 
 export class PlanDTO {
     @Expose()
+    id: string;
+    @Expose()
     type: string;
+    @Expose()
+    date: number;
     @Expose()
     price: number;
     @Expose()
@@ -15,6 +19,8 @@ export class PlanDTO {
 export class CreatePlanDTO {
     @IsNotEmpty()
     type: string;
+    @IsNotEmpty()
+    date: number;
     @IsNotEmpty()
     price: number;
     @IsNotEmpty()

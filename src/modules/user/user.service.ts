@@ -6,7 +6,6 @@ import { plainToInstance } from 'class-transformer'
 import { CreateUserDTO, ExtendDateDTO, FillInviteCodeDTO, LockUserDTO, UpdateUserDTO, UserDTO } from 'src/dtos/user.dto'
 import { User } from 'src/types/user'
 import { hashPassword } from 'src/common/hashPassword'
-import { UserRole } from 'src/enums/role.enum'
 
 export interface PaginatedUser {
   data: UserDTO[]
@@ -136,10 +135,6 @@ export class UserService {
 
       if (!user) {
         throw new HttpException('Không tìm thấy user', HttpStatus.NOT_FOUND)
-      }
-
-      if (user.updated_token !== extendDateDTO.updated_token) {
-        throw new HttpException('User đang được cập nhật bởi ai đó!', HttpStatus.CONFLICT)
       }
 
       const newExpireDate = new Date(user.expire_date); 
