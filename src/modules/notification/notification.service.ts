@@ -49,30 +49,51 @@ export class NotificationService {
     }
   }
 
-  async getAll(userId: string, role: string, page?: number, limit?: number): Promise<PaginatedNotification> {
+  async getAll(
+    userId: string,
+    role: string,
+    startDate?: string,
+    endDate?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<PaginatedNotification> {
     try {
       let notificationList = [];
-
+      const findConditions: any = {};
+  
+      if (startDate && endDate) {
+        findConditions.time = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        };
+      }
+  
       if (role === UserRole.ADMIN) {
-        notificationList = await this.notificationModel.find();
+        notificationList = await this.notificationModel
+          .find(findConditions)
+          // .skip((page - 1) * limit)
+          // .limit(limit);
       } else if (role === UserRole.EMPLOYEE) {
-        const users = await this.userModel.find({invite_code: userId})
+        const users = await this.userModel.find({ invite_code: userId });
         if (users.length > 0) {
-          users.forEach(async (item) => {
-            const notifications = await this.notificationModel.find({user_id: item.user_id});
+          for (const user of users) {
+            const conditions = { ...findConditions, user_id: user.user_id };
+            const notifications = await this.notificationModel.find(conditions);
             if (notifications.length > 0) {
-              notificationList.push(notifications)
+              notificationList.push(...notifications);
             }
-          });
+          }
         }
       } else {
-        notificationList = await this.notificationModel.find({user_id: userId});
+        const conditions = { ...findConditions, user_id: userId };
+        notificationList = await this.notificationModel
+          .find(conditions)
+          // .skip((page - 1) * limit)
+          // .limit(limit);
       }
-      
-      // const totalCount = users.length
-
-      // const totalPage = Math.ceil(totalCount / limit)
-
+  
+      const totalCount = notificationList.length;
+  
       return {
         data: plainToInstance(NotificationDTO, notificationList, {
           excludeExtraneousValues: true,
@@ -81,14 +102,15 @@ export class NotificationService {
         // page,
         // limit,
         // totalCount,
-        // totalPage,
-      }
+        // totalPage: Math.ceil(totalCount / limit),
+      };
     } catch (err) {
       if (err instanceof HttpException) {
-        throw err
+        throw err;
       } else {
-        throw new HttpException('Lỗi Internet', HttpStatus.INTERNAL_SERVER_ERROR)
+        throw new HttpException('Lỗi Internet', HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
+  
 }

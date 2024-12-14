@@ -27,10 +27,23 @@ export class NotificationController {
   @Get('getAll')
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
-  getAll(@Query() query: any, @Req() req: any) {
-    const page = query.page ? Number(query.page) : 1
-    const limit = query.limit ? Number(query.limit) : 20
-    return this.notificationService.getAll(req.user_data.user_id, req.user_data.role, page, limit)
+  async getAll(@Query() query: any, @Req() req: any) {
+    const page = query.page ? Number(query.page) : 1;
+    const limit = query.limit ? Number(query.limit) : 20;
+    
+    const startDate = query.startDate;
+    const endDate = query.endDate;
+
+    console.log(startDate, endDate)
+    
+    return this.notificationService.getAll(
+      req.user_data.user_id,
+      req.user_data.role,
+      startDate,
+      endDate,
+      page,
+      limit
+    );
   }
 
 }
