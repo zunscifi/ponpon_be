@@ -50,7 +50,7 @@ export class UpdateUserDTO {
   email: string
 
   @IsOptional()
-  @Length(8)
+  @Length(6)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, {
     message: 'Mật khẩu phải chứa ít nhất một ký tự in hoa, một ký tự thường, một chữ số và một ký tự đặc biệt!',
   })
@@ -125,10 +125,6 @@ export class CreateUserDTO {
   role: UserRole;
 
   expire_date: Date;
-
-  @IsBoolean()
-  @Transform((value) => new BooleanPipe().transform(value.value))
-  is_fill_info: boolean;
 }
 
 export class LockUserDTO {

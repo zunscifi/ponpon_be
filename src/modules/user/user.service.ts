@@ -24,6 +24,7 @@ export class UserService {
       const user = new this.userModel({
         ...createUserDTO,
         updated_token: generateUpdateToken(),
+        is_fill_info: true,
         created_date: Date.now(),
         password: hashPass,
       })
