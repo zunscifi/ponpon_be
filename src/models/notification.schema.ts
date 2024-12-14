@@ -6,6 +6,11 @@ export const notificationSchema = new mongoose.Schema({
     required: true,
   },
 
+  app_id: {
+    type: String,
+    required: true,
+  },
+
   text: {
     type: String,
     default: ''

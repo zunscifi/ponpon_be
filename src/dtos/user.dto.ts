@@ -86,7 +86,7 @@ export class UserInfoDTO {
   @Expose()
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   updated_token: string;
 }
 
@@ -106,7 +106,7 @@ export class CreateUserDTO {
   email: string
 
   @IsOptional()
-  @Length(8)
+  @Length(6)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, {
     message: 'Mật khẩu phải chứa ít nhất một ký tự in hoa, một ký tự thường, một chữ số và một ký tự đặc biệt!',
   })
@@ -139,7 +139,7 @@ export class LockUserDTO {
   @Transform((value) => new BooleanPipe().transform(value.value))
   is_locked: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   updated_token: string;
 }
 
@@ -150,7 +150,7 @@ export class FillInviteCodeDTO {
   @IsNotEmpty()
   invite_code: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   updated_token: string;
 }
 
@@ -161,6 +161,6 @@ export class ExtendDateDTO {
   @IsNotEmpty()
   expire_date: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   updated_token: string;
 }

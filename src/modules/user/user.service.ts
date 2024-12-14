@@ -35,6 +35,7 @@ export class UserService {
         excludeExtraneousValues: true,
       })
     } catch (err) {
+      console.log(err)
       if (err.code === 11000) {
         throw new ConflictException('Tài khoản đã tồn tại !')
       } else {
