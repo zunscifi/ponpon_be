@@ -28,6 +28,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
   create(@Body() createUserDTO: CreateUserDTO) {
+    console.log("fdfsdfsdfsdfsdfsdfsdfsdfsdfsdfsbbbbb")
     return this.userService.create(createUserDTO)
   }
 
@@ -40,8 +41,6 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   async update(@Body() updateUserDTO: UpdateUserDTO, @Req() req: any) {
-    console.log("fdfsdfsdfsdfsdfsdfsdfsdfsdfsdfsbbbbb")
-
     try {
       return this.userService.update(updateUserDTO)
     } catch (error) {
@@ -100,9 +99,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @HttpCode(200)
-  async getAllByUser(@Query() query: any, @Req() req: any) {
+  async getAllByUser(@Query() query: any, @Req() req: any, @Body() body: { user_id: string }) {
     const page = query.page ? Number(query.page) : 1
     const limit = query.limit ? Number(query.limit) : 20
-    return this.userService.getAllByUser(req.user_data.user_id, page, limit,)
+    const user_id = body?.user_id ?? req.user_data?.user_id
+    return this.userService.getAllByUser(user_id, page, limit,)
   }
 }

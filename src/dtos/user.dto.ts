@@ -123,8 +123,6 @@ export class CreateUserDTO {
   @IsNotEmpty()
   @IsEnum(UserRole)
   role: UserRole;
-
-  expire_date: Date;
 }
 
 export class LockUserDTO {
