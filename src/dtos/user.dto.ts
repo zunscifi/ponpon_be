@@ -1,4 +1,4 @@
-import { IsNotEmpty, Length, IsEmail, IsBoolean, Matches, IsPhoneNumber, MaxLength, IsEnum, IsOptional } from 'class-validator';
+import { IsNotEmpty, Length, IsEmail, IsBoolean, Matches, MaxLength, IsEnum, IsOptional } from 'class-validator';
 import { Transform, Expose } from 'class-transformer';
 import { BooleanPipe } from 'src/pipes/boolean.pipe';
 import { UserRole } from 'src/enums/role.enum';
@@ -57,7 +57,6 @@ export class UpdateUserDTO {
   password: string;
 
   @IsNotEmpty()
-  @IsPhoneNumber('VN', { message: 'Số điện thoại không hợp lệ' })
   phone_number: string;
 
   @IsNotEmpty()
@@ -113,7 +112,6 @@ export class CreateUserDTO {
   password: string;
 
   @IsNotEmpty()
-  @IsPhoneNumber('VN', { message: 'Số điện thoại không hợp lệ' })
   phone_number: string;
 
   @IsNotEmpty()
