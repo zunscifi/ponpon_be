@@ -18,6 +18,10 @@ export class AuthController {
     return this.authService.loginGGFB(loginGGFBDTO)
   }
 
+  @Post('refresh-token')
+  refreshToken(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken)
+  }
 
   @UseGuards(AuthGuard)
   @HttpCode(200)

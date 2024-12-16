@@ -95,7 +95,7 @@ export class UserController {
     return this.userService.getAllUsers(page, limit)
   }
 
-  @Get("getAllByUser")
+  @Post("getAllByUser")
   @UseGuards(AuthGuard)
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @HttpCode(200)
@@ -103,6 +103,7 @@ export class UserController {
     const page = query.page ? Number(query.page) : 1
     const limit = query.limit ? Number(query.limit) : 20
     const user_id = body?.user_id ?? req.user_data?.user_id
+    console.log(user_id)
     return this.userService.getAllByUser(user_id, page, limit,)
   }
 }
