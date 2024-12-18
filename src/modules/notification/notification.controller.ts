@@ -16,7 +16,7 @@ import { CreateNotificationDTO } from 'src/dtos/notification.dto'
 export class NotificationController {
   constructor(
     private notificationService: NotificationService,
-  ) {}
+  ) { }
   @Post('create')
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
@@ -27,16 +27,14 @@ export class NotificationController {
   @Post('getAll')
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
-  async getAll(@Query() query: any, @Req() req: any, @Body() body: { user_id: string, role: string }) {
+  async getAll(@Query() query: any, @Req() req: any, @Body() body: { user_id: string, role: string, startDate: string, endDate: string }) {
     const page = query.page ? Number(query.page) : 1;
     const limit = query.limit ? Number(query.limit) : 20;
     const userId = body?.user_id ?? req.user_data.user_id
-    const role =  body?.role ?? req.user_data.role
-    const startDate = query.startDate;
-    const endDate = query.endDate;
+    const role = body?.role ?? req.user_data.role
+    const startDate = body?.startDate ?? Date.now().toString()
+    const endDate = body?.endDate ?? Date.now().toString()
 
-    console.log(startDate, endDate)
-    
     return this.notificationService.getAll(
       userId,
       role,
