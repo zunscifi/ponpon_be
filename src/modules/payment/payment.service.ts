@@ -196,7 +196,7 @@ export class PaymentService {
       }
       const payments = await this.paymentModel
         .find({ user_id: user_id })
-        .populate('category');
+        .populate('plan_id');
 
       return {
         data: plainToInstance(PaymentDTO, payments, {

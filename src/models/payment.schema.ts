@@ -6,7 +6,8 @@ export const paymentSchema = new mongoose.Schema({
         required: true,
     },
     plan_id: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Plan',
         required: true,
     },
     user_id: {

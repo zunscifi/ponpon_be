@@ -24,7 +24,7 @@ export class NotificationController {
     return this.notificationService.create(createNotificationDTO)
   }
 
-  @Get('getAll')
+  @Post('getAll')
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
   async getAll(@Query() query: any, @Req() req: any, @Body() body: { user_id: string, role: string }) {
