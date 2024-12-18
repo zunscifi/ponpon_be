@@ -6,10 +6,15 @@ import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { planSchema } from 'src/models/plan.schema';
 import { userSchema } from 'src/models/user.schema';
+import { paymentSchema } from 'src/models/payment.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Plan', schema: planSchema }, { name: 'User', schema: userSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Plan', schema: planSchema },
+      { name: 'User', schema: userSchema },
+      { name: 'Payment', schema: paymentSchema },
+    ]),
     ConfigModule,
     BlackListModule,
   ],

@@ -4,17 +4,24 @@ import * as crypto from 'crypto'
 import { htmlContentPaymentFail, htmlContentPaymentSuccess } from 'src/common/htmlContent'
 import { Model } from 'mongoose'
 import { InjectModel } from '@nestjs/mongoose'
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { User } from 'src/types/user'
 import { Plan } from 'src/types/plan'
 import { generateUpdateToken } from 'src/common/generate-update-token'
-import { error } from 'console'
+import { PaymentDTO } from 'src/dtos/payment.dto'
+import { Payment } from 'src/types/payment'
+import { plainToInstance } from 'class-transformer'
+
+export interface PaginatedPayment {
+  data: PaymentDTO[]
+}
 
 @Injectable()
 export class PaymentService {
   constructor(
     @InjectModel('User') private userModel: Model<User>,
-    @InjectModel('Plan') private planModel: Model<Plan>
+    @InjectModel('Plan') private planModel: Model<Plan>,
+    @InjectModel('Payment') private paymentModel: Model<Payment>
   ) { }
 
 
@@ -61,19 +68,19 @@ export class PaymentService {
     return vnpUrl
   }
 
-  async extendDate (userId: string, planId: string): Promise<boolean> {
+  async extendDate(userId: string, planId: string): Promise<boolean> {
     try {
       const user = await this.userModel.findOne({ user_id: userId })
 
       const plan = await this.planModel.findOne({ _id: planId })
 
-      console.log(userId, planId, user, plan )
+      console.log(userId, planId, user, plan)
 
       if (!user || !plan) {
         return false
       }
 
-      const newExpireDate = new Date(user.expire_date); 
+      const newExpireDate = new Date(user.expire_date);
 
       newExpireDate.setDate(newExpireDate.getDate() + plan.date);
 
@@ -92,6 +99,31 @@ export class PaymentService {
       } else {
         return false
       }
+    } catch (err) {
+      console.log(err)
+      return false
+    }
+  }
+
+  async storePayment(userId: string, planId: string, paymentId: string): Promise<boolean> {
+    try {
+      const user = await this.userModel.findOne({ user_id: userId })
+
+      const plan = await this.planModel.findOne({ _id: planId })
+
+      if (!user || !plan) {
+        return false
+      }
+
+      const payment = new this.paymentModel({
+        payment_id: paymentId,
+        user_id: userId,
+        plan_id: planId,
+      })
+
+      await payment.save();
+
+      return true
     } catch (err) {
       console.log(err)
       return false
@@ -132,8 +164,10 @@ export class PaymentService {
           if (paymentStatus == '0') {
             //kiểm tra tình trạng giao dịch trước khi cập nhật tình trạng thanh toán
             if (rspCode == '00') {
-              const result = await this.extendDate(userId, planId)
-              return result === true ? htmlContentPaymentSuccess : htmlContentPaymentFail
+              const result1 = await this.extendDate(userId, planId)
+              const result2 = result1 ? await this.storePayment(userId, planId, paymentId) : false
+
+              return (result1 && result2) ? htmlContentPaymentSuccess : htmlContentPaymentFail
             } else {
               //that bai
               //paymentStatus = '2'
@@ -151,6 +185,31 @@ export class PaymentService {
       }
     } else {
       return htmlContentPaymentFail
+    }
+  }
+
+  async getAllPayment(user_id: string): Promise<PaginatedPayment> {
+    try {
+      const user = this.userModel.find({ user_id: user_id });
+      if (!user) {
+        throw new HttpException('Không tìm thấy user!', HttpStatus.NOT_FOUND)
+      }
+      const payments = await this.paymentModel
+        .find({ user_id: user_id })
+        .populate('category');
+
+      return {
+        data: plainToInstance(PaymentDTO, payments, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true,
+        }),
+      }
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new HttpException('Lỗi Internet', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 }
