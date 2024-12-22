@@ -55,7 +55,7 @@ export class PaymentService {
     vnp_Params['vnp_OrderInfo'] = 'Gia hạn dịch vụ'
     vnp_Params['vnp_OrderType'] = 'other'
     vnp_Params['vnp_Amount'] = amount * 100
-    vnp_Params['vnp_ReturnUrl'] = 'http://192.168.5.206:3000/payments/getPaymentResult'
+    vnp_Params['vnp_ReturnUrl'] = `${process.env.API_URL}/payments/getPaymentResult`
     vnp_Params['vnp_IpAddr'] = '127.0.0.1'
     vnp_Params['vnp_CreateDate'] = moment(new Date()).format('YYYYMMDDHHmmss')
 
