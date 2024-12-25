@@ -42,7 +42,7 @@ export class PaymentService {
     return sorted
   }
 
-  async createPayment(amount: number, orderId: string) {
+  async createPayment(amount: number, orderId: string, clientIp: string) {
     let vnpUrl = process.env.VNPAY_URL
 
     let vnp_Params = {}
@@ -57,7 +57,7 @@ export class PaymentService {
     vnp_Params['vnp_OrderType'] = 'other'
     vnp_Params['vnp_Amount'] = amount * 100
     vnp_Params['vnp_ReturnUrl'] = `${process.env.API_URL}/payments/getPaymentResult`
-    vnp_Params['vnp_IpAddr'] = '127.0.0.1'
+    vnp_Params['vnp_IpAddr'] = clientIp
     vnp_Params['vnp_CreateDate'] = moment(new Date()).format('YYYYMMDDHHmmss')
 
     vnp_Params = this.sortObject(vnp_Params)
@@ -66,6 +66,7 @@ export class PaymentService {
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
     vnp_Params['vnp_SecureHash'] = signed
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false })
+    console.log(vnpUrl)
     return vnpUrl
   }
 

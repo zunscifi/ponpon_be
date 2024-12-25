@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { MongooseModule } from '@nestjs/mongoose'
@@ -10,6 +10,7 @@ import { join } from 'path'
 import { NotificationModule } from './modules/notification/notification.module'
 import { PlanModule } from './modules/plan/plan.module'
 import { PaymentModule } from './modules/payment/payment.module'
+import { LogIpMiddleware } from './middleware/log-ip.middleware'
 
 
 @Module({
@@ -29,4 +30,11 @@ import { PaymentModule } from './modules/payment/payment.module'
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LogIpMiddleware)
+      .forRoutes({ path: '/payments/updateResult', method: RequestMethod.ALL });
+  }
+}
