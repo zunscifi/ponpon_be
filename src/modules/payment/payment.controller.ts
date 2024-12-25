@@ -28,4 +28,9 @@ export class PaymentController {
   async getAllPayment(@Body() body: { user_id: string }) {
     return this.paymentService.getAllPayment(body?.user_id)
   }
+
+  @Post('updateResult')
+  async updateResult(@Body() body: { user_id: string, plan_id, payment_id }) {
+    return this.paymentService.storePayment(body?.user_id, body?.plan_id, body?.payment_id)
+  }
 }

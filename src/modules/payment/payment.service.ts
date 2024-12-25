@@ -4,13 +4,14 @@ import * as crypto from 'crypto'
 import { htmlContentPaymentFail, htmlContentPaymentSuccess } from 'src/common/htmlContent'
 import { Model } from 'mongoose'
 import { InjectModel } from '@nestjs/mongoose'
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common'
 import { User } from 'src/types/user'
 import { Plan } from 'src/types/plan'
 import { generateUpdateToken } from 'src/common/generate-update-token'
 import { PaymentDTO } from 'src/dtos/payment.dto'
 import { Payment } from 'src/types/payment'
 import { plainToInstance } from 'class-transformer'
+import axios from 'axios'
 
 export interface PaginatedPayment {
   data: PaymentDTO[]
@@ -105,28 +106,36 @@ export class PaymentService {
     }
   }
 
-  async storePayment(userId: string, planId: string, paymentId: string): Promise<boolean> {
+  async storePayment(userId: string, planId: string, paymentId: string) {
     try {
-      const user = await this.userModel.findOne({ user_id: userId })
+      const result = await this.extendDate(userId, planId)
+      if (result) {
+        const user = await this.userModel.findOne({ user_id: userId })
 
-      const plan = await this.planModel.findOne({ _id: planId })
+        const plan = await this.planModel.findOne({ _id: planId })
 
-      if (!user || !plan) {
-        return false
+        if (!user || !plan) {
+          throw new HttpException('Có lỗi xảy ra!', HttpStatus.NOT_IMPLEMENTED)
+        }
+
+        const payment = new this.paymentModel({
+          payment_id: paymentId,
+          user_id: userId,
+          plan_id: planId,
+        })
+
+        await payment.save();
+        return { message: 'Cập nhật thành công' }
+
+      } else {
+        throw new HttpException('Có lỗi xảy ra!', HttpStatus.NOT_IMPLEMENTED)
       }
-
-      const payment = new this.paymentModel({
-        payment_id: paymentId,
-        user_id: userId,
-        plan_id: planId,
-      })
-
-      await payment.save();
-
-      return true
     } catch (err) {
-      console.log(err)
-      return false
+      if (err instanceof HttpException) {
+        throw err
+      } else {
+        throw new InternalServerErrorException()
+      }
     }
   }
 
@@ -164,10 +173,13 @@ export class PaymentService {
           if (paymentStatus == '0') {
             //kiểm tra tình trạng giao dịch trước khi cập nhật tình trạng thanh toán
             if (rspCode == '00') {
-              const result1 = await this.extendDate(userId, planId)
-              const result2 = result1 ? await this.storePayment(userId, planId, paymentId) : false
-
-              return (result1 && result2) ? htmlContentPaymentSuccess : htmlContentPaymentFail
+              try {
+                await axios.post(`${process.env.API_URL}/payments/updateResult`,
+                  { user_id: userId, plan_id: planId, payment_id: paymentId })
+              } catch (error) {
+                return htmlContentPaymentFail
+              }
+              return htmlContentPaymentSuccess
             } else {
               //that bai
               //paymentStatus = '2'
