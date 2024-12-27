@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { BlackListModule } from '../black-list/black-list.module';
-import { PaymentController } from './payment.controller';
-import { PaymentService } from './payment.service';
+import { OrderService } from './order.service';
 import { planSchema } from 'src/models/plan.schema';
 import { userSchema } from 'src/models/user.schema';
+import { OrderController } from './order.controller';
 import { orderSchema } from 'src/models/order.schema';
 
 @Module({
@@ -18,7 +18,7 @@ import { orderSchema } from 'src/models/order.schema';
     ConfigModule,
     BlackListModule,
   ],
-  controllers: [PaymentController],
-  providers: [PaymentService],
+  controllers: [OrderController],
+  providers: [OrderService],
 })
-export class PaymentModule {}
+export class OrderModule { }

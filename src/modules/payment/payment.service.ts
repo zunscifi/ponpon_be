@@ -8,21 +8,14 @@ import { HttpException, HttpStatus, Injectable, InternalServerErrorException } f
 import { User } from 'src/types/user'
 import { Plan } from 'src/types/plan'
 import { generateUpdateToken } from 'src/common/generate-update-token'
-import { PaymentDTO } from 'src/dtos/payment.dto'
-import { Payment } from 'src/types/payment'
-import { plainToInstance } from 'class-transformer'
-import axios from 'axios'
-
-export interface PaginatedPayment {
-  data: PaymentDTO[]
-}
+import { Order } from 'src/types/order'
 
 @Injectable()
 export class PaymentService {
   constructor(
     @InjectModel('User') private userModel: Model<User>,
     @InjectModel('Plan') private planModel: Model<Plan>,
-    @InjectModel('Payment') private paymentModel: Model<Payment>
+    @InjectModel('Order') private orderModel: Model<Order>
   ) { }
 
 
@@ -43,6 +36,8 @@ export class PaymentService {
   }
 
   async createPayment(amount: number, orderId: string, clientIp: string) {
+    process.env.TZ = 'Asia/Ho_Chi_Minh';
+
     let vnpUrl = process.env.VNPAY_URL
 
     let vnp_Params = {}
@@ -107,50 +102,43 @@ export class PaymentService {
     }
   }
 
-  async storePayment(userId: string, planId: string, paymentId: string) {
-    try {
-      const result = await this.extendDate(userId, planId)
-      if (result) {
-        const user = await this.userModel.findOne({ user_id: userId })
+  async getPaymentResult(query: any) {
+    let vnp_Params = query
+    let secureHash = vnp_Params['vnp_SecureHash']
 
-        const plan = await this.planModel.findOne({ _id: planId })
+    delete vnp_Params['vnp_SecureHash']
+    delete vnp_Params['vnp_SecureHashType']
 
-        if (!user || !plan) {
-          throw new HttpException('Có lỗi xảy ra!', HttpStatus.NOT_IMPLEMENTED)
-        }
+    let orderId = vnp_Params['vnp_TxnRef']
 
-        const payment = new this.paymentModel({
-          payment_id: paymentId,
-          user_id: userId,
-          plan_id: planId,
-        })
+    vnp_Params = this.sortObject(vnp_Params)
+    let secretKey = process.env.VNP_HASHSECRET
+    let signData = querystring.stringify(vnp_Params, { encode: false })
+    let hmac = crypto.createHmac('sha512', secretKey)
+    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
-        await payment.save();
-        return { message: 'Cập nhật thành công' }
+    const order = await this.orderModel?.findOne({ _id: orderId })
 
+    if (secureHash === signed) {
+      if (order && order?.status === "2") {
+        return htmlContentPaymentSuccess
       } else {
-        throw new HttpException('Có lỗi xảy ra!', HttpStatus.NOT_IMPLEMENTED)
+        return htmlContentPaymentFail
       }
-    } catch (err) {
-      if (err instanceof HttpException) {
-        throw err
-      } else {
-        throw new InternalServerErrorException()
-      }
+    } else {
+      return htmlContentPaymentFail
     }
   }
 
-  async getPaymentResult(query: any) {
+  async updateResult(query: any) {
     let vnp_Params = query
     let secureHash = vnp_Params['vnp_SecureHash']
 
     let rspCode = vnp_Params['vnp_ResponseCode']
 
-    let paymentId = vnp_Params['vnp_TxnRef']
+    let orderId = vnp_Params['vnp_TxnRef']
 
-    let planId = paymentId.split('_')[0];
-
-    let userId = paymentId.split('_')[1];
+    let amount = vnp_Params['vnp_Amount']
 
     delete vnp_Params['vnp_SecureHash']
     delete vnp_Params['vnp_SecureHashType']
@@ -161,68 +149,56 @@ export class PaymentService {
     let hmac = crypto.createHmac('sha512', secretKey)
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
-    let paymentStatus = '0' // Giả sử '0' là trạng thái khởi tạo giao dịch, chưa có IPN. Trạng thái này được lưu khi yêu cầu thanh toán chuyển hướng sang Cổng thanh toán VNPAY tại đầu khởi tạo đơn hàng.
-    //let paymentStatus = '1'; // Giả sử '1' là trạng thái thành công bạn cập nhật sau IPN được gọi và trả kết quả về nó
-    //let paymentStatus = '2'; // Giả sử '2' là trạng thái thất bại bạn cập nhật sau IPN được gọi và trả kết quả về nó
+    const order = await this.orderModel?.findOne({ _id: orderId })
 
-    let checkOrderId = true // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
-    let checkAmount = true // Kiểm tra số tiền "giá trị của vnp_Amout/100" trùng khớp với số tiền của đơn hàng trong CSDL của bạn
+    let paymentStatus = order?.status ?? ""
+
+    let checkOrderId = !order ? false : true
+    let checkAmount = checkOrderId ? order?.plan_id?.price * 100 === amount : false
     if (secureHash === signed) {
       //kiểm tra checksum
       if (checkOrderId) {
         if (checkAmount) {
           if (paymentStatus == '0') {
-            //kiểm tra tình trạng giao dịch trước khi cập nhật tình trạng thanh toán
             if (rspCode == '00') {
               try {
-                await axios.post(`${process.env.API_URL}/payments/updateResult`,
-                  { user_id: userId, plan_id: planId, payment_id: paymentId })
+                const updateResult = await order.updateOne({ status: "1" })
+                if (updateResult.modifiedCount > 0) {
+                  const result = await this.extendDate(order?.user_id, order?.plan_id?.id)
+                  if (result) {
+                    return { RspCode: '00', Message: 'Success' }
+                  } else {
+                    throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
+                  }
+                } else {
+                  throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
+                }
               } catch (error) {
-                return htmlContentPaymentFail
+                throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
               }
-              return htmlContentPaymentSuccess
             } else {
-              //that bai
-              //paymentStatus = '2'
-              // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
-              return htmlContentPaymentFail
+              try {
+                const updateResult = await order.updateOne({ status: "2" })
+                if (updateResult.modifiedCount > 0) {
+                  return { RspCode: '00', Message: 'Success' }
+                } else {
+                  throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
+                }
+              } catch (error) {
+                throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
+              }
             }
           } else {
-            return htmlContentPaymentFail
+            return { RspCode: '02', Message: 'This order has been updated to the payment status' }
           }
         } else {
-          return htmlContentPaymentFail
+          return { RspCode: '04', Message: 'Amount invalid' }
         }
       } else {
-        return htmlContentPaymentFail
+        return { RspCode: '01', Message: 'Order not found' }
       }
     } else {
-      return htmlContentPaymentFail
-    }
-  }
-
-  async getAllPayment(user_id: string): Promise<PaginatedPayment> {
-    try {
-      const user = this.userModel.find({ user_id: user_id });
-      if (!user) {
-        throw new HttpException('Không tìm thấy user!', HttpStatus.NOT_FOUND)
-      }
-      const payments = await this.paymentModel
-        .find({ user_id: user_id })
-        .populate('plan_id');
-
-      return {
-        data: plainToInstance(PaymentDTO, payments, {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true,
-        }),
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      } else {
-        throw new HttpException('Lỗi Internet', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+      return { RspCode: '97', Message: 'Checksum failed' }
     }
   }
 }

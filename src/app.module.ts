@@ -11,7 +11,8 @@ import { NotificationModule } from './modules/notification/notification.module'
 import { PlanModule } from './modules/plan/plan.module'
 import { PaymentModule } from './modules/payment/payment.module'
 import { LogIpMiddleware } from './middleware/log-ip.middleware'
-
+import * as cors from 'cors';
+import { OrderModule } from './modules/order/order.module'
 
 @Module({
   imports: [
@@ -24,8 +25,8 @@ import { LogIpMiddleware } from './middleware/log-ip.middleware'
     AuthModule,
     NotificationModule,
     PlanModule,
-    PaymentModule
-
+    PaymentModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -34,7 +35,7 @@ import { LogIpMiddleware } from './middleware/log-ip.middleware'
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(LogIpMiddleware)
+      .apply(LogIpMiddleware, cors({ origin: '*' }))
       .forRoutes({ path: '/payments/updateResult', method: RequestMethod.ALL });
   }
 }

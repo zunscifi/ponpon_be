@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Query, Get, Body, Post, Req } from '@nestjs/common'
+import { Controller, UseGuards, Query, Get, Body, Post, Req, HttpCode } from '@nestjs/common'
 import { UserRole } from 'src/enums/role.enum'
 import { AuthGuard } from 'src/guards/auth.guard'
 import { Roles } from 'src/decorators/roles.decorator'
@@ -21,19 +21,12 @@ export class PaymentController {
 
   @Get('getPaymentResult')
   async getPaymentResult(@Query() query: any) {
-    console.log(query)
     return this.paymentService.getPaymentResult(query)
   }
 
-  @Post('getAllPayment')
-  @UseGuards(AuthGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN, UserRole.EMPLOYEE)
-  async getAllPayment(@Body() body: { user_id: string }) {
-    return this.paymentService.getAllPayment(body?.user_id)
-  }
-
-  @Post('updateResult')
-  async updateResult(@Body() body: { user_id: string, plan_id, payment_id }) {
-    return this.paymentService.storePayment(body?.user_id, body?.plan_id, body?.payment_id)
+  @Get('updateResult')
+  @HttpCode(200)
+  async updateResult(@Query() query: any) {
+    return this.paymentService.updateResult(query)
   }
 }

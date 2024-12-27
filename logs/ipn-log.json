@@ -1,0 +1,14 @@
+[
+  {
+    "ip": "192.168.5.206",
+    "method": "POST",
+    "url": "/payments/updateResult",
+    "body": {
+      "user_id": "108791119687454475497",
+      "plan_id": "675d5e55f94b8beb94d83a83",
+      "payment_id": "675d5e55f94b8beb94d83a83_108791119687454475497_1735307397739"
+    },
+    "isWhitelisted": false,
+    "timestamp": "2024-12-27T13:50:43.541Z"
+  }
+]

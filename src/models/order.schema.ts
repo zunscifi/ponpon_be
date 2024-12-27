@@ -1,10 +1,6 @@
 import * as mongoose from 'mongoose'
 
-export const paymentSchema = new mongoose.Schema({
-    payment_id: {
-        type: String,
-        required: true,
-    },
+export const orderSchema = new mongoose.Schema({
     plan_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plan',
@@ -14,7 +10,10 @@ export const paymentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-
+    status: {
+        type: String,
+        required: true,
+    },
     created_at: {
         type: Date,
         default: new Date()
