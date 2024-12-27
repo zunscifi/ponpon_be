@@ -21,6 +21,7 @@ export class PaymentController {
 
   @Get('getPaymentResult')
   async getPaymentResult(@Query() query: any) {
+    console.log(query)
     return this.paymentService.getPaymentResult(query)
   }
 

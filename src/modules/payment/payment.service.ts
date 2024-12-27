@@ -51,7 +51,7 @@ export class PaymentService {
     vnp_Params['vnp_TmnCode'] = process.env.VNP_TMNCODE
     vnp_Params['vnp_Locale'] = 'vn'
     vnp_Params['vnp_CurrCode'] = 'VND'
-    // vnp_Params['vnp_BankCode'] = 'VNPAYQR'
+    vnp_Params['vnp_BankCode'] = 'INTCARD'
     vnp_Params['vnp_TxnRef'] = orderId
     vnp_Params['vnp_OrderInfo'] = 'Gia hạn dịch vụ'
     vnp_Params['vnp_OrderType'] = 'other'
