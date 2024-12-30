@@ -149,6 +149,7 @@ export class PaymentService {
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
     const order = await this.orderModel?.findOne({ _id: orderId }).populate("plan_id")
+    console.log("ipn urlrlrlrlrlrlrr", order)
     let paymentStatus = order?.status ?? ""
 
     let checkOrderId = !order ? false : true
