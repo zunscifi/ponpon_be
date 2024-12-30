@@ -149,13 +149,13 @@ export class PaymentService {
     let hmac = crypto.createHmac('sha512', secretKey)
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
-    const order = await this.orderModel?.findOne({ _id: orderId })
+    const order = await this.orderModel?.findOne({ _id: orderId }).populate("plan_id")
     console.log("ipn_url", order)
 
     let paymentStatus = order?.status ?? ""
 
     let checkOrderId = !order ? false : true
-    let checkAmount = checkOrderId ? order?.plan_id?.price * 100 === amount : false
+    let checkAmount = checkOrderId ? (order?.plan_id?.price * 100).toString() === amount.toString() : false
     if (secureHash === signed) {
       //kiểm tra checksum
       if (checkOrderId) {
