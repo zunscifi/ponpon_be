@@ -70,8 +70,6 @@ export class PaymentService {
 
       const plan = await this.planModel.findOne({ _id: planId })
 
-      console.log(userId, planId, user, plan)
-
       if (!user || !plan) {
         return false
       }
@@ -118,8 +116,10 @@ export class PaymentService {
 
     const order = await this.orderModel?.findOne({ _id: orderId })
 
+    console.log("return url", order)
+
     if (secureHash === signed) {
-      if (order && order?.status === "2") {
+      if (order && order?.status === "1") {
         return htmlContentPaymentSuccess
       } else {
         return htmlContentPaymentFail
@@ -130,7 +130,6 @@ export class PaymentService {
   }
 
   async updateResult(query: any) {
-    console.log("ipn_url", query)
     let vnp_Params = query
     let secureHash = vnp_Params['vnp_SecureHash']
 
@@ -150,8 +149,6 @@ export class PaymentService {
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
     const order = await this.orderModel?.findOne({ _id: orderId }).populate("plan_id")
-    console.log("ipn_url", order)
-
     let paymentStatus = order?.status ?? ""
 
     let checkOrderId = !order ? false : true
