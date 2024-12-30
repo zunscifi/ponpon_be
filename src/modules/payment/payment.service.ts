@@ -130,6 +130,7 @@ export class PaymentService {
   }
 
   async updateResult(query: any) {
+    console.log("ipn_url", query)
     let vnp_Params = query
     let secureHash = vnp_Params['vnp_SecureHash']
 
@@ -149,6 +150,7 @@ export class PaymentService {
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
 
     const order = await this.orderModel?.findOne({ _id: orderId })
+    console.log("ipn_url", order)
 
     let paymentStatus = order?.status ?? ""
 
@@ -165,38 +167,49 @@ export class PaymentService {
                 if (updateResult.modifiedCount > 0) {
                   const result = await this.extendDate(order?.user_id, order?.plan_id?.id)
                   if (result) {
+                    console.log("Success")
                     return { RspCode: '00', Message: 'Success' }
                   } else {
+                    console.log("Update database faild!")
                     throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
                   }
                 } else {
+                  console.log("Update database faild!")
                   throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
                 }
               } catch (error) {
+                console.log("Update database faild!")
                 throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
               }
             } else {
               try {
                 const updateResult = await order.updateOne({ status: "2" })
                 if (updateResult.modifiedCount > 0) {
+                  console.log("Success")
                   return { RspCode: '00', Message: 'Success' }
                 } else {
+                  console.log("Update database faild!")
                   throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
                 }
               } catch (error) {
+                console.log("Update database faild!")
                 throw new HttpException({ RspCode: '99', Message: 'Update database faild!' }, HttpStatus.NOT_IMPLEMENTED)
               }
             }
           } else {
+            console.log("This order has been updated to the payment status")
             return { RspCode: '02', Message: 'This order has been updated to the payment status' }
           }
         } else {
+          console.log("Amount invalid")
           return { RspCode: '04', Message: 'Amount invalid' }
         }
       } else {
+        console.log("Order not found")
         return { RspCode: '01', Message: 'Order not found' }
       }
     } else {
+      console.log("Checksum failed")
       return { RspCode: '97', Message: 'Checksum failed' }
     }
   }
