@@ -33,9 +33,6 @@ export class OrderService {
       })
 
       await order.save()
-
-      console.log(order)
-
       return plainToInstance(OrderDTO, order, {
         excludeExtraneousValues: true,
       })

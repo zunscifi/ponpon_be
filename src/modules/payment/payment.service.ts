@@ -37,9 +37,6 @@ export class PaymentService {
 
   async createPayment(amount: number, orderId: string, clientIp: string) {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
-
-    console.log(`${process.env.API_URL}/payments/getPaymentResult`)
-
     let vnpUrl = process.env.VNPAY_URL
 
     let vnp_Params = {}
