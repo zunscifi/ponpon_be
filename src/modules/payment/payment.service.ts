@@ -20,17 +20,25 @@ export class PaymentService {
 
 
   sortObject(obj: any) {
-    let sorted: any = {}
-    let keys = Object.keys(obj).sort()
-    keys.forEach((key) => {
-      sorted[key] = obj[key] // Không encode tại đây
-    })
+    let sorted = {}
+    let str = []
+    let key
+    for (key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        str.push(encodeURIComponent(key))
+      }
+    }
+    str.sort()
+    for (key = 0; key < str.length; key++) {
+      sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+')
+    }
     return sorted
   }
-  
 
   async createPayment(amount: number, orderId: string, clientIp: string) {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
+
+    console.log(`${process.env.API_URL}/payments/getPaymentResult`)
 
     let vnpUrl = process.env.VNPAY_URL
 
