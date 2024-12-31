@@ -57,7 +57,7 @@ export class PaymentService {
     vnp_Params = this.sortObject(vnp_Params)
     var signData = querystring.stringify(vnp_Params, { encode: false })
     let hmac = crypto.createHmac('sha512', process.env.VNP_HASHSECRET)
-    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
     vnp_Params['vnp_SecureHash'] = signed
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false })
     console.log(vnpUrl)
@@ -112,7 +112,7 @@ export class PaymentService {
     let secretKey = process.env.VNP_HASHSECRET
     let signData = querystring.stringify(vnp_Params, { encode: false })
     let hmac = crypto.createHmac('sha512', secretKey)
-    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
 
     const order = await this.orderModel?.findOne({ _id: orderId })
 
@@ -143,17 +143,26 @@ export class PaymentService {
     delete vnp_Params['vnp_SecureHashType']
 
     vnp_Params = this.sortObject(vnp_Params)
+
     let secretKey = process.env.VNP_HASHSECRET
+    if (!secretKey) {
+      throw new HttpException({ RspCode: '99', Message: 'Secret key not found' }, HttpStatus.NOT_FOUND)
+    }
+
     let signData = querystring.stringify(vnp_Params, { encode: false })
     let hmac = crypto.createHmac('sha512', secretKey)
-    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex')
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
 
-    const order = await this.orderModel?.findOne({ _id: orderId }).populate("plan_id")
-    console.log("ipn urlrlrlrlrlrlrr", order)
+    let order;
+    try {
+      order = await this.orderModel?.findOne({ _id: orderId }).populate("plan_id");
+    } catch (error) {
+      return { RspCode: '01', Message: 'Order not found' }
+    }
+
     let paymentStatus = order?.status ?? ""
-
     let checkOrderId = !order ? false : true
-    let checkAmount = checkOrderId ? (order?.plan_id?.price * 100).toString() === amount.toString() : false
+    let checkAmount = checkOrderId && order?.plan_id?.price ? (order.plan_id.price * 100).toString() === amount.toString() : false;
     if (secureHash === signed) {
       //kiểm tra checksum
       if (checkOrderId) {
