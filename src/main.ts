@@ -12,6 +12,7 @@ export const verify: Record<string, {isVerified: boolean}> = {};
 config({ path: envFilePath });
 
 async function bootstrap() {
+  process.env.TZ = 'Asia/Ho_Chi_Minh';
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));

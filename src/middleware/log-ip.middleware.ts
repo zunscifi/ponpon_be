@@ -1,7 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import * as fs from 'fs';
-import * as path from 'path';
+import { LogModel } from 'src/models/log.schema';
 
 @Injectable()
 export class LogIpMiddleware implements NestMiddleware {
@@ -40,17 +39,10 @@ export class LogIpMiddleware implements NestMiddleware {
             timestamp: new Date().toISOString(),
         };
 
-        const logDir = path.resolve(__dirname, '..', '..', 'logs');
-        if (!fs.existsSync(logDir)) {
-            fs.mkdirSync(logDir, { recursive: true });
-        }
-
-        const logFile = path.join(logDir, 'ipn-log.json');
-        const existingLogs = fs.existsSync(logFile) ? JSON.parse(fs.readFileSync(logFile, 'utf8')) : [];
-        existingLogs.push(logData);
-
-        fs.writeFileSync(logFile, JSON.stringify(existingLogs, null, 2), 'utf8');
-        console.log(`Logged IP: ${clientIp}, Whitelisted: ${isWhitelisted}`);
+        const log = new LogModel(logData);
+        log.save()
+            .then(() => console.log('Log saved to database'))
+            .catch((err) => console.error('Error saving log:', err.message));
 
         next();
     }
