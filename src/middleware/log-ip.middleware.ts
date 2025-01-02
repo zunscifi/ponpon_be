@@ -1,9 +1,16 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { LogModel } from 'src/models/log.schema';
+import { Model } from 'mongoose';
+import { Log } from 'src/types/log';
 
 @Injectable()
 export class LogIpMiddleware implements NestMiddleware {
+
+    constructor(
+        @InjectModel('Log')
+        private logModel: Model<Log>,
+    ) { }
     private readonly sandboxWhitelist = [
         '113.160.92.202',
         '203.205.17.226',
@@ -36,10 +43,9 @@ export class LogIpMiddleware implements NestMiddleware {
             url: req.originalUrl,
             body: req.body,
             isWhitelisted: isWhitelisted,
-            timestamp: new Date().toISOString(),
         };
 
-        const log = new LogModel(logData);
+        const log = new this.logModel(logData);
         log.save()
             .then(() => console.log('Log saved to database'))
             .catch((err) => console.error('Error saving log:', err.message));

@@ -12,5 +12,3 @@ const logSchema = new mongoose.Schema({
         expires: '60d',
     },
 });
-
-export const LogModel = mongoose.model('Log', logSchema);
