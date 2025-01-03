@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose'
 
-const logSchema = new mongoose.Schema({
+export const logSchema = new mongoose.Schema({
     ip: String,
     method: String,
     url: String,

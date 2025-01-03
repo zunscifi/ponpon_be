@@ -13,6 +13,7 @@ import { PaymentModule } from './modules/payment/payment.module'
 import { LogIpMiddleware } from './middleware/log-ip.middleware'
 import * as cors from 'cors';
 import { OrderModule } from './modules/order/order.module'
+import { LogModule } from './modules/log/log.module'
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { OrderModule } from './modules/order/order.module'
     NotificationModule,
     PlanModule,
     PaymentModule,
-    OrderModule
+    OrderModule,
+    LogModule
   ],
   controllers: [AppController],
   providers: [AppService],

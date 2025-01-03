@@ -6,7 +6,6 @@ import { Log } from 'src/types/log';
 
 @Injectable()
 export class LogIpMiddleware implements NestMiddleware {
-
     constructor(
         @InjectModel('Log')
         private logModel: Model<Log>,
@@ -40,8 +39,9 @@ export class LogIpMiddleware implements NestMiddleware {
         const logData = {
             ip: clientIp,
             method: req.method,
-            url: req.originalUrl,
-            body: req.body,
+            url: req?.originalUrl,
+            body: req?.body,
+            query: req?.query,
             isWhitelisted: isWhitelisted,
         };
 
