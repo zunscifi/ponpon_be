@@ -37,6 +37,13 @@ export class UserController {
     return this.userService.getUser(body.user_id ? body.user_id : req.user_data.user_id)
   }
 
+  @Get('getUserInfo')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.USER)
+  getUserInfo(@Req() req: any) {
+    return this.userService.getUser(req?.user_data?.user_id)
+  }
+
   @Put('update')
   @UseGuards(AuthGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
